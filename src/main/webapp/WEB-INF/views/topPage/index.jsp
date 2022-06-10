@@ -4,7 +4,7 @@
 <%@ page import="constants.ForwardConst" %>
 
 <c:set var="actTop" value="${ForwardConst.ACT_TOP.getValue()}" />
-<c:set var="actUs" value="${ForwardConst.ACT_USER.getValue()}" />
+<c:set var="actShop" value="${ForwardConst.ACT_SHOP.getValue()}" />
 <c:set var="actSh" value="${ForwardConst.ACT_SHOP.getValue()}" />
 
 <c:set var="commShow" value="${ForwardConst.CMD_SHOW.getValue()}" />
@@ -19,16 +19,20 @@
             </div>
         </c:if>
         <h2>ようこそ</h2>
-        <h3>ログインするショップを選んでください。</h3>
+        <c:choose>
+        	<c:when test="${shops == null}">
+        		<p>ショップがありません</p>
+        	</c:when>
+        	<c:otherwise>
+        	<h3>ログインするショップを選んでください。</h3>
             <ul>
-            <c:forEach var="shop" items="${shops}" varStatus="status">
-                 <li>${shop.name}</li>
-                 <c:if test="${status.count==0}">
-                       <p>ショップがありません</p>
-                 </c:if>
-            </c:forEach>
+	            <c:forEach var="shop" items="${shops}" varStatus="status">
+	                 <li>${shop.name}</li>
+	            </c:forEach>
             </ul>
-        <p><a href="<c:url value='?action=${actUs}&command=${commNew}' />">新規ユーザー登録</a></p>
+        	</c:otherwise>        </c:choose>
+
+        <p><a href="<c:url value='?action=${actShop}&command=${commNew}' />">新規ショップ登録</a></p>
 
     </c:param>
 </c:import>

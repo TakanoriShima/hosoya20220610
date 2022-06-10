@@ -5,15 +5,13 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
-import actions.views.UserView;
 import actions.views.ShopView;
+import actions.views.UserView;
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;
 import constants.MessageConst;
 import services.ShopService;
-
-import java.time.LocalDate;
 
 /**
  * ショップに関する処理を行うActionクラス
@@ -22,205 +20,204 @@ import java.time.LocalDate;
 
 public class ShopAction extends ActionBase {
 
-    private ShopService service;
+	private ShopService service;
 
-    /**
-     * メソッドを実行する
-     */
-    @Override
-    public void process() throws ServletException, IOException {
-        service = new ShopService();
+	/**
+	 * メソッドを実行する
+	 */
+	@Override
+	public void process() throws ServletException, IOException {
+		service = new ShopService();
 
-        //メソッドを実行
-        invoke();
+		//メソッドを実行
+		invoke();
 
-        service.close();
-    }
+		service.close();
+	}
 
-    /**
-     * ログインしているユーザーのショップ一覧画面を表示する
-     * @throws ServletException
-     * @throws IOException
-     */
-    public void index() throws ServletException, IOException {
+	/**
+	 * ログインしているユーザーのショップ一覧画面を表示する
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public void index() throws ServletException, IOException {
 
-        //セッションからログイン中のユーザー情報を取得
-        UserView loginUser = (UserView) getSessionScope(AttributeConst.LOGIN_US);
+		//セッションからログイン中のユーザー情報を取得
+		UserView loginUser = (UserView) getSessionScope(AttributeConst.LOGIN_US);
 
-        //ログイン中のユーザーが作成したショップデータを、指定されたページ数の一覧画面に表示する分取得する
-        int page = getPage();
-        List<ShopView> shop = service.getMinePerPage(loginUser, page);
+		//ログイン中のユーザーが作成したショップデータを、指定されたページ数の一覧画面に表示する分取得する
+		int page = getPage();
+		List<ShopView> shop = service.getMinePerPage(loginUser, page);
 
-        //ログイン中のユーザーが作成したショップデータの件数を取得
-        long myShopsCount = service.countAllMine(loginUser);
+		//ログイン中のユーザーが作成したショップデータの件数を取得
+		long myShopsCount = service.countAllMine(loginUser);
 
-        putRequestScope(AttributeConst.SHOPS,shop); //取得したショップデータ
-        putRequestScope(AttributeConst.SH_COUNT, myShopsCount); //ログイン中のユーザーが作成したショップの数
-        putRequestScope(AttributeConst.PAGE, page); //ページ数
-        putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+		putRequestScope(AttributeConst.SHOPS, shop); //取得したショップデータ
+		putRequestScope(AttributeConst.SH_COUNT, myShopsCount); //ログイン中のユーザーが作成したショップの数
+		putRequestScope(AttributeConst.PAGE, page); //ページ数
+		putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
 
-        //↑ここまで追記
+		//↑ここまで追記
 
-        //セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
-        String flush = getSessionScope(AttributeConst.FLUSH);
-        if (flush != null) {
-            putRequestScope(AttributeConst.FLUSH, flush);
-            removeSessionScope(AttributeConst.FLUSH);
-        }
+		//セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
+		String flush = getSessionScope(AttributeConst.FLUSH);
+		if (flush != null) {
+			putRequestScope(AttributeConst.FLUSH, flush);
+			removeSessionScope(AttributeConst.FLUSH);
+		}
 
-        //一覧画面を表示
-        forward(ForwardConst.FW_TOP_INDEX);
-    }
+		//一覧画面を表示
+		forward(ForwardConst.FW_TOP_INDEX);
+	}
 
-    /**
-     * 新規登録画面を表示する
-     * @throws ServletException
-     * @throws IOException
-     */
-    public void entryNew() throws ServletException, IOException {
+	/**
+	 * 新規登録画面を表示する
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public void entryNew() throws ServletException, IOException {
 
-        putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
+		putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
 
-        //新規登録画面を表示
-        forward(ForwardConst.FW_SH_SHOW);
-        }
-    /**
-     * 新規登録を行う
-     * @throws ServletException
-     * @throws IOException
-     */
-    public void create() throws ServletException, IOException {
+		//新規登録画面を表示
+		forward(ForwardConst.FW_SH_NEW);
+	}
 
-        //CSRF対策 tokenのチェック
-        if(checkToken()) {
+	/**
+	 * 新規登録を行う
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public void create() throws ServletException, IOException {
 
-            //セッションからログイン中のユーザー情報を取得
-            UserView uv = (UserView)getSessionScope(AttributeConst.LOGIN_US);
+		//CSRF対策 tokenのチェック
+		if (checkToken()) {
 
-            //パラメータの値を元にショップ情報のインスタンスを作成する
-            ShopView sv = new ShopView(
-                    null,
-                    uv,//ログインしているユーザーを、ショップ作者として登録
-                    getRequestParam(AttributeConst.SH_NAME),
-                    0);//※0はデフォルト値
+			//セッションからログイン中のユーザー情報を取得
+			UserView uv = (UserView) getSessionScope(AttributeConst.LOGIN_US);
 
-            //ショップ情報登録
-            List<String> errors = service.create(sv);
+			//パラメータの値を元にショップ情報のインスタンスを作成する
+			ShopView sv = new ShopView(
+					null,
+					uv, //ログインしているユーザーを、ショップ作者として登録
+					getRequestParam(AttributeConst.SH_NAME),
+					0);//※0はデフォルト値
 
-            if (errors.size() > 0) {
-                //登録中にエラーがあった場合
+			//ショップ情報登録
+			List<String> errors = service.create(sv);
 
-                putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
-                putRequestScope(AttributeConst.SHOP, sv); //入力されたショップ情報
-                putRequestScope(AttributeConst.ERR, errors); //エラーのリスト
+			if (errors.size() > 0) {
+				//登録中にエラーがあった場合
 
-                //新規登録画面を再表示
-                forward(ForwardConst.FW_SH_NEW);
+				putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
+				putRequestScope(AttributeConst.SHOP, sv); //入力されたショップ情報
+				putRequestScope(AttributeConst.ERR, errors); //エラーのリスト
 
-            } else {
-                //登録中にエラーがなかった場合
+				//新規登録画面を再表示
+				forward(ForwardConst.FW_SH_NEW);
 
-                //セッションに登録完了のフラッシュメッセージを設定
-                putSessionScope(AttributeConst.FLUSH, MessageConst.I_REGISTERED.getMessage());
+			} else {
+				//登録中にエラーがなかった場合
 
-                //一覧画面にリダイレクト
-                redirect(ForwardConst.ACT_SHOP, ForwardConst.CMD_INDEX);
-            }
+				//セッションに登録完了のフラッシュメッセージを設定
+				putSessionScope(AttributeConst.FLUSH, MessageConst.I_REGISTERED.getMessage());
 
-        }
-    }
+				//一覧画面にリダイレクト
+				redirect(ForwardConst.ACT_SHOP, ForwardConst.CMD_INDEX);
+			}
 
-    /**
-     * 詳細画面を表示する
-     * @throws ServletException
-     * @throws IOException
-     */
+		}
+	}
 
-    public void show() throws ServletException, IOException {
+	/**
+	 * 詳細画面を表示する
+	 * @throws ServletException
+	 * @throws IOException
+	 */
 
-        //idを条件にショップデータを取得
-        ShopView sv = service.findOne(toNumber(getRequestParam(AttributeConst.SH_ID)));
+	public void show() throws ServletException, IOException {
 
-        if(sv==null) {
-            //該当のショップデータが存在しない場合はエラー画面を表示
-            forward(ForwardConst.FW_ERR_UNKNOWN);
-            return;
-        }else{
-            putRequestScope(AttributeConst.SHOP,sv);//取得したショップデータ
+		//idを条件にショップデータを取得
+		ShopView sv = service.findOne(toNumber(getRequestParam(AttributeConst.SH_ID)));
 
-            //詳細画面を表示
-            forward(ForwardConst.FW_SH_SHOW);
+		if (sv == null) {
+			//該当のショップデータが存在しない場合はエラー画面を表示
+			forward(ForwardConst.FW_ERR_UNKNOWN);
+			return;
+		} else {
+			putRequestScope(AttributeConst.SHOP, sv);//取得したショップデータ
 
-        }
-    }
+			//詳細画面を表示
+			forward(ForwardConst.FW_SH_SHOW);
 
-    /**
-     * 編集画面を表示する
-     * @throws ServletException
-     * @throws IOException
-     */
-    public void edit() throws ServletException, IOException {
+		}
+	}
 
-        //idを条件にショップデータを取得
-        ShopView sv = service.findOne(toNumber(getRequestParam(AttributeConst.US_ID)));
+	/**
+	 * 編集画面を表示する
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public void edit() throws ServletException, IOException {
 
-        //セッションからログイン中のユーザー情報を取得
-        UserView uv = (UserView)getSessionScope(AttributeConst.LOGIN_US);
+		//idを条件にショップデータを取得
+		ShopView sv = service.findOne(toNumber(getRequestParam(AttributeConst.US_ID)));
 
-        if (sv == null || uv.getId() != sv.getUser().getId()) {
-            //該当のショップデータが存在しない、またはログインしているユーザーがショップの作者でない場合はエラー画面を表示
-            forward(ForwardConst.FW_ERR_UNKNOWN);
+		//セッションからログイン中のユーザー情報を取得
+		UserView uv = (UserView) getSessionScope(AttributeConst.LOGIN_US);
 
-        }else {
+		if (sv == null || uv.getId() != sv.getUser().getId()) {
+			//該当のショップデータが存在しない、またはログインしているユーザーがショップの作者でない場合はエラー画面を表示
+			forward(ForwardConst.FW_ERR_UNKNOWN);
 
-            putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
-            putRequestScope(AttributeConst.SHOP, sv); //取得したショップ情報
+		} else {
 
-            //編集画面を表示する
-            forward(ForwardConst.FW_SH_EDIT);
-        }
-    }
+			putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
+			putRequestScope(AttributeConst.SHOP, sv); //取得したショップ情報
 
-    /**
-     * 更新を行う
-     * @throws ServletException
-     * @throws IOException
-     */
-    public void update() throws ServletException, IOException {
+			//編集画面を表示する
+			forward(ForwardConst.FW_SH_EDIT);
+		}
+	}
 
-        //CSRF対策 tokenのチェック
-        if(checkToken()) {
+	/**
+	 * 更新を行う
+	 * @throws ServletException
+	 * @throws IOException
+	 */
+	public void update() throws ServletException, IOException {
 
-            //idを条件にショップデータを取得
-            ShopView sv = service.findOne(toNumber(getRequestParam(AttributeConst.SH_ID)));
+		//CSRF対策 tokenのチェック
+		if (checkToken()) {
 
-            //入力されたショップ内容を設定する
-            sv.setName(getRequestParam(AttributeConst.SH_NAME));
+			//idを条件にショップデータを取得
+			ShopView sv = service.findOne(toNumber(getRequestParam(AttributeConst.SH_ID)));
 
-            //ショップデータを更新
-            List<String> errors = service.update(sv);
+			//入力されたショップ内容を設定する
+			sv.setName(getRequestParam(AttributeConst.SH_NAME));
 
-            if (errors.size() > 0) {
-                //更新中にエラーが発生した場合
+			//ショップデータを更新
+			List<String> errors = service.update(sv);
 
-                putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
-                putRequestScope(AttributeConst.SHOP, sv); //入力されたショップ情報
-                putRequestScope(AttributeConst.ERR, errors); //エラーのリスト
+			if (errors.size() > 0) {
+				//更新中にエラーが発生した場合
 
-                //編集画面を再表示
-                forward(ForwardConst.FW_SH_EDIT);
-            } else {
-                //更新中にエラーがなかった場合
+				putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
+				putRequestScope(AttributeConst.SHOP, sv); //入力されたショップ情報
+				putRequestScope(AttributeConst.ERR, errors); //エラーのリスト
 
-                //セッションに更新完了のフラッシュメッセージを設定
-                putSessionScope(AttributeConst.FLUSH, MessageConst.I_UPDATED.getMessage());
+				//編集画面を再表示
+				forward(ForwardConst.FW_SH_EDIT);
+			} else {
+				//更新中にエラーがなかった場合
 
-                //一覧画面にリダイレクト
-                redirect(ForwardConst.ACT_SHOP, ForwardConst.CMD_INDEX);
-            }
-        }
-    }
+				//セッションに更新完了のフラッシュメッセージを設定
+				putSessionScope(AttributeConst.FLUSH, MessageConst.I_UPDATED.getMessage());
 
-
+				//一覧画面にリダイレクト
+				redirect(ForwardConst.ACT_SHOP, ForwardConst.CMD_INDEX);
+			}
+		}
+	}
 
 }

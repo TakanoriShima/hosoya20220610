@@ -10,10 +10,10 @@
 
 <c:import url="/WEB-INF/views/layout/app.jsp">
     <c:param name="content">
-    <c:out value="${loginError}"/>
+
         <c:if test="${loginError}">
             <div id="flush_error">
-                メールアドレスかパスワードが間違っています。
+                <c:out value="${loginError}"/>
             </div>
         </c:if>
        <c:if test="${flush != null}">

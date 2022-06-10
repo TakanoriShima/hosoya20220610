@@ -1,15 +1,15 @@
 package actions;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 
+import actions.views.UserView;
 import constants.AttributeConst;
 import constants.ForwardConst;
-import services.UserService;
-
-import actions.views.UserView;
 import constants.MessageConst;
 import constants.PropertyConst;
+import services.UserService;
 
 
 /**
@@ -80,7 +80,7 @@ public class AuthAction extends ActionBase{
                 //ログインしたユーザーのDBデータを取得
                 UserView uv = service.findOne(mailaddress, plainPass, pepper);
                 //セッションにログインしたユーザーを設定
-                putSessionScope(AttributeConst.LOGIN_US,uv);
+                putSessionScope(AttributeConst.LOGIN_US, uv);
                 //セッションにログイン完了のフラッシュメッセージを設定
                 putSessionScope(AttributeConst.FLUSH,MessageConst.I_LOGINED.getMessage());
                 //トップへリダイレクト
