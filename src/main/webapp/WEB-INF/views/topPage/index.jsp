@@ -24,7 +24,7 @@
         		<p>ショップがありません</p>
         	</c:when>
         	<c:otherwise>
-        	<h3>ログインするショップを選んでください。</h3>
+        	<h3>ショップ一覧</h3>
             <ul>
 	            <c:forEach var="shop" items="${shops}" varStatus="status">
 	                 <li><a href="?action=${actShop}&command=${commShow}&name=${shop.name}">${shop.name}</a></li>

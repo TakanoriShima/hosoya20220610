@@ -27,11 +27,17 @@
                 </tr>
 				<tr>
                     <th>優先度</th>
-                    <td><c:out value="${shop.priorityflag}"/></td>
+					<td>
+					現在は<c:out value="${shop.priorityflag}"/>
+                    <form action="?action=Shop&command=proprotyUpdate&name=${shop.name}" method="POST">
+                    	<button type="submit">ログイン直後に表示</button>
+                    </form>
+                    </td>
                 </tr>
             </tbody>
         </table>
         <c:if test="${sessionScope.login_user.id == shop.user.id}">
+        	<p><a href="<c:url value='?action=Event&command=entryNew' />">新規イベント作成</a></p>
             <p><a href="<c:url value='?action=Shop&command=edit&name=${shop.name}' />">このショップを編集する</a></p>
         </c:if>
 
