@@ -138,9 +138,15 @@ public class ShopAction extends ActionBase {
 	public void show() throws ServletException, IOException {
 
 		//idを条件にショップデータを取得
-		ShopView sv = service.findOne(toNumber(getRequestParam(AttributeConst.SH_ID)));
+//		ShopView sv = service.findOne(toNumber(getRequestParam(AttributeConst.SH_ID)));
+		String name = request.getParameter("name");
+		UserView uv = (UserView) getSessionScope(AttributeConst.LOGIN_US);
+//		System.out.println("name = " + name);
 
-		if (sv == null) {
+		ShopView sv = service.findShopByName(name, uv);
+//		System.out.println(sv.getName());
+
+		if (sv  == null) {
 			//該当のショップデータが存在しない場合はエラー画面を表示
 			forward(ForwardConst.FW_ERR_UNKNOWN);
 			return;

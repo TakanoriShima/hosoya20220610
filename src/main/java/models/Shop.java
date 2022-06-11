@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -30,7 +29,10 @@ import lombok.Setter;
             query = JpaConst.Q_US_COUNT_ALL_MINE_DEF),
     @NamedQuery(
             name = JpaConst.Q_SHOP_GET_ALL_MINE,
-            query = JpaConst.Q_SHOP_GET_ALL_MINE_DEF)
+            query = JpaConst.Q_SHOP_GET_ALL_MINE_DEF),
+    @NamedQuery(
+            name = "getShopByName",
+            query = "SELECT s FROM Shop AS s WHERE s.name=:name AND s.user=:user")
 })
 
 @Getter // すべてのクラスフィールドに好いてgetterを自動生成する（Lombok）

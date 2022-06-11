@@ -2,12 +2,13 @@ package services;
 
 import java.util.List;
 
-import actions.views.UserConverter;
-import actions.views.UserView;
 import actions.views.ShopConverter;
 import actions.views.ShopView;
+import actions.views.UserConverter;
+import actions.views.UserView;
 import constants.JpaConst;
 import models.Shop;
+import models.User;
 import models.validators.ShopValidator;
 
 /**
@@ -127,6 +128,20 @@ public class ShopService extends ServiceBase {
         Shop s = findPneInternal(sv.getId());
         ShopConverter.copyViewToModel(s, sv);
         em.getTransaction().commit();
+    }
+
+    /**
+     * ショップデータを取得する
+     * @param name ショップ名
+     */
+    public ShopView findShopByName(String name, UserView uv) {
+
+    	User user = UserConverter.toModel(uv);
+    	Shop shop = em.createNamedQuery("getShopByName", Shop.class).setParameter("name", name).setParameter("user", user).getSingleResult();
+//    	System.out.println("name1 = " + shop.getName());
+    	ShopView sv = ShopConverter.toView(shop);
+
+    	return sv;
     }
 
 }

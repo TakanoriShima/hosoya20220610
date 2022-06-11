@@ -85,7 +85,7 @@ public class AuthAction extends ActionBase{
                 putSessionScope(AttributeConst.FLUSH,MessageConst.I_LOGINED.getMessage());
                 //トップへリダイレクト
 
-                redirect(ForwardConst.ACT_TOP,ForwardConst.CMD_INDEX);
+                redirect(ForwardConst.ACT_SHOP,ForwardConst.CMD_INDEX);
             }
         }else{
             //認証失敗

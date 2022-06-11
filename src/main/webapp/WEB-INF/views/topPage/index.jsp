@@ -27,7 +27,7 @@
         	<h3>ログインするショップを選んでください。</h3>
             <ul>
 	            <c:forEach var="shop" items="${shops}" varStatus="status">
-	                 <li>${shop.name}</li>
+	                 <li><a href="?action=${actShop}&command=${commShow}&name=${shop.name}">${shop.name}</a></li>
 	            </c:forEach>
             </ul>
         	</c:otherwise>        </c:choose>

@@ -77,41 +77,42 @@ public class LoginFilter implements Filter {
 				//
 				if (!(ForwardConst.ACT_AUTH.getValue().equals(action)
 						&& ForwardConst.CMD_SHOW_LOGIN.getValue().equals(command)
-								|| ForwardConst.CMD_LOGIN.getValue().equals(command)
+						|| ForwardConst.CMD_LOGIN.getValue().equals(command)
 						|| ForwardConst.ACT_USER.getValue().equals(action)
 								&& ForwardConst.CMD_NEW.getValue().equals(command)
 						|| ForwardConst.ACT_USER.getValue().equals(action)
-								&& ForwardConst.CMD_CREATE.getValue().equals(command))) {
-										//ログインページの表示またはログイン実行以外はログインページにリダイレクト
-										((HttpServletResponse) response).sendRedirect(
-												contextPath
-														+ "?action=" + ForwardConst.ACT_AUTH.getValue()
-														+ "&command=" + ForwardConst.CMD_SHOW_LOGIN.getValue());
-										return;
-									}
+								&& ForwardConst.CMD_CREATE.getValue().equals(command)
+						|| "Shop".equals(action))) {
+					//ログインページの表示またはログイン実行以外はログインページにリダイレクト
+					((HttpServletResponse) response).sendRedirect(
+							contextPath
+									+ "?action=" + ForwardConst.ACT_AUTH.getValue()
+									+ "&command=" + ForwardConst.CMD_SHOW_LOGIN.getValue());
+					return;
+				}
 
-				} else {
-					//ログイン済
-					//↓ここら辺も追加する…？承認系を行うもしくはuser＆new＆create類をやろうとすると？？
-									if (ForwardConst.ACT_AUTH.getValue().equals(action)) {
-										//承認系actionを行おうとしている場合
+			} else {
+				//ログイン済
+				//↓ここら辺も追加する…？承認系を行うもしくはuser＆new＆create類をやろうとすると？？
+				if (ForwardConst.ACT_AUTH.getValue().equals(action)) {
+					//承認系actionを行おうとしている場合
 
-										if (ForwardConst.CMD_SHOW_LOGIN.getValue().equals(command)) {
-											//ログインページの表示はトップ画面にリダイレクト
-											((HttpServletResponse) response).sendRedirect(
-													contextPath
-															+ "?action=" + ForwardConst.ACT_TOP.getValue()
-															+ "&command=" + ForwardConst.CMD_INDEX.getValue());
-											return;
-										} else if (ForwardConst.CMD_LOGOUT.getValue().equals(command)) {
-											//ログアウトの実施は許可
-										} else {
-											//上記以外の承認系Actionはエラー画面
-											String forward = String.format("/WEB-INF/views/%s.jsp", "error/unknown");
-											RequestDispatcher dispatcher = request.getRequestDispatcher(forward);
-											dispatcher.forward(request, response);
-											return;
-										}
+					if (ForwardConst.CMD_SHOW_LOGIN.getValue().equals(command)) {
+						//ログインページの表示はトップ画面にリダイレクト
+						((HttpServletResponse) response).sendRedirect(
+								contextPath
+										+ "?action=" + ForwardConst.ACT_TOP.getValue()
+										+ "&command=" + ForwardConst.CMD_INDEX.getValue());
+						return;
+					} else if (ForwardConst.CMD_LOGOUT.getValue().equals(command)) {
+						//ログアウトの実施は許可
+					} else {
+						//上記以外の承認系Actionはエラー画面
+						String forward = String.format("/WEB-INF/views/%s.jsp", "error/unknown");
+						RequestDispatcher dispatcher = request.getRequestDispatcher(forward);
+						dispatcher.forward(request, response);
+						return;
+					}
 				}
 			}
 
